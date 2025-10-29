@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import InputPanel from './components/InputPanel';
 import ViewPanel from './components/ViewPanel';
+import { ReactFlowProvider } from 'reactflow'; // Import ReactFlowProvider
 
 function App() {
   const [jsonData, setJsonData] = useState<any | null>(null);
@@ -39,7 +40,9 @@ function App() {
       <Header onSearch={handleSearch} onToggleTheme={handleToggleTheme} isDarkMode={isDarkMode} />
       <div className="flex flex-1">
         <InputPanel onVisualize={handleVisualize} onClear={handleClear} />
-        <ViewPanel jsonData={jsonData} searchQuery={searchQuery} />
+        <ReactFlowProvider> {/* Wrap ViewPanel with ReactFlowProvider */}
+          <ViewPanel jsonData={jsonData} searchQuery={searchQuery} />
+        </ReactFlowProvider>
       </div>
     </div>
   );

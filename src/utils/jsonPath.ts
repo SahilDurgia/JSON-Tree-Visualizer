@@ -1,4 +1,4 @@
-import { FlowNode } from '../types';
+import { type FlowNode } from '../types';
 
 export const parseJsonPath = (pathString: string): string[] => {
   if (!pathString || pathString === '$') {
@@ -14,7 +14,7 @@ export const parseJsonPath = (pathString: string): string[] => {
   // 2. [index] (e.g., [0])
   // 3. ['key'] (e.g., ['user name'])
   // 4. ["key"] (e.g., ["user name"])
-  const regex = \.([a-zA-Z0-9_]+)|\[(\d+)\]|\[\'([^\']+)\'\]|\[\"([^\\"]+)\"\]/g;
+  const regex = new RegExp("\\.([a-zA-Z0-9_]+)|\[(\\d+)\]|\[\'([^\\\']+)\'\]|\[\\\"([^\\\"]+)\\\"\]", "g");
   let match;
 
   let lastIndex = 0;

@@ -13,3 +13,4 @@
 - **Task 11: Implement Dark/Light mode toggle** - Completed
 - **Task 12: Implement Clear/Reset functionality** - Completed
 - **Task 13: Implement "Copy Path on Click" feature** - Completed
+- **Task 14: Add hover tooltips for nodes** - Completed

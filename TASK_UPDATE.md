@@ -7,3 +7,5 @@
 - **Task 5: Implement JSON parsing and validation logic** - Completed
 - **Task 6: (Hard) Convert parsed JSON to React Flow nodes/edges** - Completed
 - **Task 7: Implement search input and state management** - Completed
+- **Task 8: (Hard) Implement JSON path search algorithm** - Completed
+- **Task 9: Implement node highlighting & auto-pan feature** - Completed

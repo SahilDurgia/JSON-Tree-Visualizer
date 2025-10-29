@@ -11,3 +11,4 @@
 - **Task 9: Implement node highlighting & auto-pan feature** - Completed
 - **Task 10: Add React Flow UI controls (Zoom, FitView)** - Completed
 - **Task 11: Implement Dark/Light mode toggle** - Completed
+- **Task 12: Implement Clear/Reset functionality** - Completed

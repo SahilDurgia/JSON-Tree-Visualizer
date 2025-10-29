@@ -29,11 +29,16 @@ function App() {
     setIsDarkMode((prevMode) => !prevMode);
   };
 
+  const handleClear = () => {
+    setJsonData(null);
+    setSearchQuery('');
+  };
+
   return (
     <div className={`flex flex-col h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
       <Header onSearch={handleSearch} onToggleTheme={handleToggleTheme} isDarkMode={isDarkMode} />
       <div className="flex flex-1">
-        <InputPanel onVisualize={handleVisualize} />
+        <InputPanel onVisualize={handleVisualize} onClear={handleClear} />
         <ViewPanel jsonData={jsonData} searchQuery={searchQuery} />
       </div>
     </div>

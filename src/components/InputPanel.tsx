@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 
 interface InputPanelProps {
   onVisualize: (jsonData: any) => void;
+  onClear: () => void; // Add onClear to props
 }
 
-const InputPanel: React.FC<InputPanelProps> = ({ onVisualize }) => {
+const InputPanel: React.FC<InputPanelProps> = ({ onVisualize, onClear }) => {
   const [jsonInput, setJsonInput] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -23,6 +24,12 @@ const InputPanel: React.FC<InputPanelProps> = ({ onVisualize }) => {
     }
   };
 
+  const handleClearClick = () => {
+    setJsonInput('');
+    setError(null);
+    onClear();
+  };
+
   return (
     <div className="w-1/3 p-4 bg-gray-100 border-r border-gray-300">
       <h2 className="text-lg font-semibold mb-4">JSON Input</h2>
@@ -34,12 +41,20 @@ const InputPanel: React.FC<InputPanelProps> = ({ onVisualize }) => {
         onChange={handleInputChange}
       ></textarea>
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-      <button
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        onClick={handleVisualizeClick}
-      >
-        Visualize
-      </button>
+      <div className="flex justify-between mt-4">
+        <button
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          onClick={handleVisualizeClick}
+        >
+          Visualize
+        </button>
+        <button
+          className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+          onClick={handleClearClick}
+        >
+          Clear
+        </button>
+      </div>
     </div>
   );
 };

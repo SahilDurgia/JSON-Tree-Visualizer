@@ -15,3 +15,4 @@
 - **Task 13: Implement "Copy Path on Click" feature** - Completed
 - **Task 14: Add hover tooltips for nodes** - Completed
 - **Task 15: Final styling, responsiveness, and bug fixes** - Completed
+- **Task 16: Create README and deploy to Netlify/Vercel** - Completed

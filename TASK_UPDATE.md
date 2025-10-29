@@ -4,3 +4,4 @@
 - **Task 2: Install & configure React Flow & dependencies** - Completed
 - **Task 3: Create main layout (Header, Input Panel, View Panel)** - Completed
 - **Task 4: Design custom nodes for Object, Array, Primitives** - Completed
+- **Task 5: Implement JSON parsing and validation logic** - Completed

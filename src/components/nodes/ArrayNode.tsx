@@ -10,7 +10,10 @@ const ArrayNode: React.FC<ArrayNodeProps> = ({ data }) => {
   const bgColorClass = data.isHighlighted ? 'bg-red-400' : 'bg-green-500';
 
   return (
-    <div className={`px-4 py-2 shadow-md rounded-full text-white border-2 ${bgColorClass} ${borderColorClass}`}>
+    <div
+      className={`px-4 py-2 shadow-md rounded-full text-white border-2 ${bgColorClass} ${borderColorClass} cursor-pointer`}
+      onClick={handleNodeClick}
+    >
       <div className="flex items-center">
         <div className="text-lg font-bold">{data.label} (Array)</div>
       </div>

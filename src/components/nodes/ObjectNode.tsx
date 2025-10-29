@@ -9,8 +9,17 @@ const ObjectNode: React.FC<ObjectNodeProps> = ({ data }) => {
   const borderColorClass = data.isHighlighted ? 'border-red-500' : 'border-blue-600';
   const bgColorClass = data.isHighlighted ? 'bg-red-400' : 'bg-blue-500';
 
+  const handleNodeClick = () => {
+    navigator.clipboard.writeText(data.path);
+    // Optionally, provide some visual feedback to the user
+    alert(`Copied path: ${data.path}`);
+  };
+
   return (
-    <div className={`px-4 py-2 shadow-md rounded-full text-white border-2 ${bgColorClass} ${borderColorClass}`}>
+    <div
+      className={`px-4 py-2 shadow-md rounded-full text-white border-2 ${bgColorClass} ${borderColorClass} cursor-pointer`}
+      onClick={handleNodeClick}
+    >
       <div className="flex items-center">
         <div className="text-lg font-bold">{data.label} (Object)</div>
       </div>

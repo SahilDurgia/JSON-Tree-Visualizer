@@ -12,3 +12,4 @@
 - **Task 10: Add React Flow UI controls (Zoom, FitView)** - Completed
 - **Task 11: Implement Dark/Light mode toggle** - Completed
 - **Task 12: Implement Clear/Reset functionality** - Completed
+- **Task 13: Implement "Copy Path on Click" feature** - Completed

@@ -10,7 +10,10 @@ const PrimitiveNode: React.FC<PrimitiveNodeProps> = ({ data }) => {
   const bgColorClass = data.isHighlighted ? 'bg-red-400' : 'bg-orange-500';
 
   return (
-    <div className={`px-4 py-2 shadow-md rounded-full text-white border-2 ${bgColorClass} ${borderColorClass}`}>
+    <div
+      className={`px-4 py-2 shadow-md rounded-full text-white border-2 ${bgColorClass} ${borderColorClass} cursor-pointer`}
+      onClick={handleNodeClick}
+    >
       <div className="flex items-center">
         <div className="text-lg font-bold">{data.label}: {String(data.value)}</div>
       </div>

@@ -9,3 +9,5 @@
 - **Task 7: Implement search input and state management** - Completed
 - **Task 8: (Hard) Implement JSON path search algorithm** - Completed
 - **Task 9: Implement node highlighting & auto-pan feature** - Completed
+- **Task 10: Add React Flow UI controls (Zoom, FitView)** - Completed
+- **Task 11: Implement Dark/Light mode toggle** - Completed

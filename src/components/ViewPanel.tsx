@@ -28,10 +28,10 @@ import type { FlowNode, FlowEdge } from '../types';
 interface ViewPanelProps {
   jsonData: any | null;
   searchQuery: string;
-  onDownload: () => void;
+  onDownloadRef?: React.MutableRefObject<(() => void) | null>;
 }
 
-const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
+const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery, onDownloadRef }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>([]);
   const { fitView, setCenter } = useReactFlow();
@@ -168,10 +168,12 @@ const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
       });
   }, [nodes, theme]);
 
-  // Expose download handler to parent
+  // Expose download handler to parent via ref
   useEffect(() => {
-    (window as any).__jsonTreeDownload = handleDownloadImage;
-  }, [handleDownloadImage]);
+    if (onDownloadRef) {
+      onDownloadRef.current = handleDownloadImage;
+    }
+  }, [handleDownloadImage, onDownloadRef]);
 
 
   // Render empty state if no data

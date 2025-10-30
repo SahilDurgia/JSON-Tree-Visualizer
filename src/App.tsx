@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Header from './components/Header';
 import InputPanel from './components/InputPanel';
 import ViewPanel from './components/ViewPanel';
@@ -10,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 function App() {
   const [jsonData, setJsonData] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const downloadRef = useRef<(() => void) | null>(null);
 
   const handleVisualize = (data: any) => {
     setJsonData(data);
@@ -36,9 +37,9 @@ function App() {
   };
 
   const handleDownload = () => {
-    // Call the download handler exposed by ViewPanel
-    if ((window as any).__jsonTreeDownload) {
-      (window as any).__jsonTreeDownload();
+    // Call the download handler via ref
+    if (downloadRef.current) {
+      downloadRef.current();
     }
   };
 
@@ -52,7 +53,7 @@ function App() {
             <ViewPanel 
               jsonData={jsonData} 
               searchQuery={searchQuery}
-              onDownload={handleDownload}
+              onDownloadRef={downloadRef}
             />
           </ReactFlowProvider>
         </div>

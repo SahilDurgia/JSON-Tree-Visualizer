@@ -31,7 +31,9 @@ An interactive web application that visualizes JSON data as a hierarchical tree 
 
 ## 🚀 Live Demo
 
-**[View Live Application](#)** *(Add your deployment link here)*
+**[View Live Application](https://tubular-frangollo-f1edc9.netlify.app/)** 
+
+Deployed on Netlify with automatic CI/CD from GitHub.
 
 ## 📸 Screenshots
 
@@ -58,8 +60,8 @@ An interactive web application that visualizes JSON data as a hierarchical tree 
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/json-tree-visualizer.git
-cd json-tree-visualizer
+git clone https://github.com/SahilDurgia/JSON-Tree-Visualizer.git
+cd JSON-Tree-Visualizer
 ```
 
 2. **Install dependencies**
@@ -235,9 +237,10 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👨‍💻 Author
 
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your Name](https://linkedin.com/in/yourprofile)
+**Sahil Durgia**
+- GitHub: [@SahilDurgia](https://github.com/SahilDurgia)
+- Repository: [JSON-Tree-Visualizer](https://github.com/SahilDurgia/JSON-Tree-Visualizer)
+- Live Demo: [https://tubular-frangollo-f1edc9.netlify.app/](https://tubular-frangollo-f1edc9.netlify.app/)
 
 ## 🙏 Acknowledgments
 

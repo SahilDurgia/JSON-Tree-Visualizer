@@ -19,7 +19,6 @@ An interactive web application that visualizes JSON data as a hierarchical tree 
 - ✅ **Search Functionality**: Search by JSON path (e.g., `$.user.address.city`, `items[0].name`)
 - ✅ **Highlight & Navigate**: Automatically highlights and pans to matching nodes
 - ✅ **Interactive Controls**: Zoom in/out, pan, and fit view
-- ✅ **Node Information**: Hover over nodes to see path and value
 
 ### Bonus Features (Optional)
 - ⭐ **Dark/Light Mode Toggle**: Seamless theme switching with system preference detection
@@ -50,7 +49,7 @@ An interactive web application that visualizes JSON data as a hierarchical tree 
 - **Framework**: React 19.1.1 with TypeScript
 - **Styling**: Tailwind CSS 4.1.16
 - **Visualization**: React Flow 11.11.4
-- **Syntax Highlighting**: react-syntax-highlighter
+- **Code Editor**: Monaco Editor (VS Code's editor)
 - **Notifications**: react-toastify
 - **Image Export**: html-to-image
 - **Build Tool**: Vite 7.1.7
@@ -89,8 +88,9 @@ The optimized build will be in the `dist/` folder, ready for deployment.
 ## 📖 Usage Guide
 
 ### 1. Input JSON Data
-- Paste your JSON data in the left panel
-- The editor has syntax highlighting (click to edit)
+- Type or paste your JSON data in the Monaco editor (left panel)
+- Real-time syntax highlighting as you type (just like VS Code)
+- Automatic JSON validation with error markers
 - A sample JSON is pre-loaded for quick testing
 
 ### 2. Visualize

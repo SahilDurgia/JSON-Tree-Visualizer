@@ -4,10 +4,11 @@ import { toast } from 'react-toastify';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
+  onDownload: () => void;
   hasData: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSearch, hasData }) => {
+const Header: React.FC<HeaderProps> = ({ onSearch, onDownload, hasData }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { theme, setTheme } = useTheme();
 
@@ -88,6 +89,24 @@ const Header: React.FC<HeaderProps> = ({ onSearch, hasData }) => {
               </button>
             </form>
             
+            {/* Download Button */}
+            <button
+              onClick={onDownload}
+              disabled={!hasData}
+              className={`px-5 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2 transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                hasData
+                  ? 'bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:scale-105 active:scale-95 hover:shadow-lg cursor-pointer'
+                  : 'bg-secondary/50 text-secondary-foreground/50 cursor-not-allowed'
+              }`}
+              aria-label="Download tree as image"
+              title={hasData ? 'Download tree as PNG' : 'Visualize JSON first'}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>Download</span>
+            </button>
+
             {/* Theme Toggle Button - Night/Day */}
             <button
               onClick={toggleTheme}

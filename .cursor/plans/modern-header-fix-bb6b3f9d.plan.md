@@ -1,100 +1,136 @@
-<!-- bb6b3f9d-1694-4756-9e8c-abbf59c82ce6 7dc6c2ce-ad4d-4c79-979d-cbe11520f90e -->
-# Organize App Layout - No Scroll Design
+<!-- bb6b3f9d-1694-4756-9e8c-abbf59c82ce6 6d6907d6-277e-4050-8000-2a3d9ea68bde -->
+# Enhance JSON Tree Visualizer Features
 
 ## Overview
 
-Fix the layout to ensure everything fits perfectly on screen without any scrolling, improve visual organization, and maintain the light/dark theme system.
-
-## Issues Identified from Screenshot
-
-- Panel titles ("JSON Input", "JSON Tree Visualization") take unnecessary vertical space
-- Inconsistent padding and spacing across components
-- Layout might cause scrolling on smaller viewports
-- Need better visual hierarchy and organization
+Implement two major enhancements: (1) Replace current syntax highlighter with Monaco Editor for real-time syntax highlighting while typing, and (2) Re-implement the download-as-image feature using React Flow's `getNodesBounds` and `getViewportForBounds` for proper rendering.
 
 ## Changes Required
 
-### 1. App Layout (`src/App.tsx`)
+### 1. Install Monaco Editor
 
-- Ensure `h-screen` is properly constraining the layout
-- Verify overflow settings prevent unwanted scrolling
-- Check that flex layout distributes space correctly
+**File: `package.json`**
 
-### 2. Input Panel (`src/components/InputPanel.tsx`)
+- Add `@monaco-editor/react` package (~4MB bundle, but provides VS Code-like editing experience)
+- Add type definitions if needed
 
-- Remove or minimize the "JSON Input" title (redundant - clear from context)
-- Adjust padding to be more compact
-- Ensure textarea properly fills available space with `flex-1`
-- Optimize button layout and sizing
-- Make corners more rounded for consistency
+### 2. Replace Syntax Highlighter in InputPanel
 
-### 3. View Panel (`src/components/ViewPanel.tsx`)
+**File: `src/components/InputPanel.tsx`**
 
-- Remove or minimize the "JSON Tree Visualization" title
-- Remove search status message or make it compact/inline
-- Ensure ReactFlow container takes full available height
-- Fix padding to be consistent with InputPanel
-- Remove redundant borders that create visual clutter
+- Remove `react-syntax-highlighter` and toggle-based editing approach
+- Import and integrate `@monaco-editor/react`
+- Configure Monaco with:
+  - JSON language mode with validation
+  - Theme switching (vs-dark / vs-light) based on app theme
+  - Auto-formatting on paste
+  - Error markers for invalid JSON
+  - Minimap disabled for cleaner look
+  - Line numbers enabled
+  - Read-only mode: false (allow direct editing)
+- Keep error state for validation feedback below editor
+- Remove `isEditing` state (no longer needed)
 
-### 4. Header (`src/components/Header.tsx`)
+**Key implementation:**
 
-- Already modernized, verify it's not causing overflow
+```typescript
+import Editor from '@monaco-editor/react';
 
-### 5. Global Styles (`src/index.css`)
+// In component:
+<Editor
+  height="100%"
+  defaultLanguage="json"
+  theme={effectiveTheme === 'dark' ? 'vs-dark' : 'vs-light'}
+  value={jsonInput}
+  onChange={(value) => setJsonInput(value || '')}
+  options={{
+    minimap: { enabled: false },
+    fontSize: 14,
+    lineNumbers: 'on',
+    scrollBeyondLastLine: false,
+    automaticLayout: true,
+    formatOnPaste: true,
+    formatOnType: true
+  }}
+/>
+```
 
-- Add overflow hidden to body/html if needed
-- Ensure theme transitions are smooth
-- Verify CSS variables work correctly in both modes
+### 3. Re-implement Download Image Feature
 
-## Responsive Design Strategy
+**File: `src/components/Header.tsx`**
 
-### Mobile (< 640px)
+- Add download button back to header (next to theme toggle)
+- Add `onDownload` prop to handle download trigger
+- Style button with download icon
+- Disable when `!hasData`
 
-- Stack panels vertically instead of side-by-side
-- Input panel on top with reduced height (30-40% of viewport)
-- Visualization panel takes remaining space below
-- Header stacks elements vertically (already implemented)
-- Hide non-essential UI elements
-- Touch-friendly button sizes (minimum 44px)
+**File: `src/App.tsx`**
 
-### Tablet (640px - 1024px)
+- Create `handleDownload` function
+- Pass to `ViewPanel` via callback prop
+- Pass to `Header` for button trigger
 
-- Side-by-side layout with adjusted proportions
-- Input panel: 40% width
-- View panel: 60% width
-- Comfortable spacing and touch targets
+**File: `src/components/ViewPanel.tsx`**
 
-### Desktop (> 1024px)
+- Import `getNodesBounds`, `getViewportForBounds` from reactflow
+- Import `toPng` from html-to-image
+- Add `onDownload` prop
+- Implement proper download logic using React Flow's viewport transformation:
+```typescript
+const handleDownload = useCallback(() => {
+  const nodesBounds = getNodesBounds(nodes);
+  const viewport = getViewportForBounds(
+    nodesBounds,
+    imageWidth,
+    imageHeight,
+    0.5, // minZoom
+    2,   // maxZoom
+    padding
+  );
+  
+  // Apply viewport transform, wait for render, capture, then restore
+  toPng(flowRef.current, {
+    backgroundColor: theme === 'dark' ? '#1a1a1a' : '#ffffff',
+    width: imageWidth,
+    height: imageHeight,
+    style: {
+      width: `${imageWidth}px`,
+      height: `${imageHeight}px`,
+      transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`
+    }
+  }).then(downloadImage);
+}, [nodes, theme]);
+```
 
-- Optimal side-by-side layout
-- Input panel: 33% width
-- View panel: 67% width
-- Enhanced hover states and interactions
 
-## Design Principles
+This approach ensures both nodes and edges render correctly by using React Flow's native viewport calculations.
 
-- **No scrolling**: Everything must fit in viewport height on all devices
-- **Consistent spacing**: Use responsive padding (p-2 sm:p-4 lg:p-6)
-- **Visual hierarchy**: Use subtle cues instead of big titles
-- **Rounded corners**: Consistent border-radius throughout
-- **Clean layout**: Remove unnecessary borders and dividers
-- **Fully responsive**: Adapts to mobile, tablet, and desktop
-- **Theme support**: Perfect light/dark mode on all screen sizes
+### 4. Update Tech Stack in README
+
+**File: `README.md` (line 53)**
+
+- Change from `react-syntax-highlighter` to `@monaco-editor/react`
+- Verify all feature checkboxes match implementation
 
 ## Testing Checklist
 
-- [ ] Mobile (375px width) - vertical layout, no scroll
-- [ ] Tablet (768px width) - horizontal layout, proper proportions
-- [ ] Desktop (1920x1080) - optimal layout, no scroll
-- [ ] No horizontal scroll on any viewport
-- [ ] Dark mode works on all breakpoints
-- [ ] Light mode works on all breakpoints
-- [ ] Theme switching is smooth
-- [ ] Touch targets are adequate on mobile
-- [ ] All interactive elements accessible on touch devices
+- Monaco editor displays with correct theme
+- Real-time syntax highlighting works while typing
+- Invalid JSON shows error markers in editor
+- Download button appears in header
+- Download captures full tree with nodes and edges visible
+- Downloaded image has proper background color for theme
+- All existing functionality still works
 
 ### To-dos
 
 - [ ] Update Header.tsx with responsive flex layout to prevent overlapping
 - [ ] Apply modern design patterns including gradients, shadows, and transitions
 - [ ] Verify header works correctly at mobile, tablet, and desktop sizes
+- [ ] Install @monaco-editor/react package and type definitions
+- [ ] Replace react-syntax-highlighter with Monaco Editor in InputPanel.tsx
+- [ ] Add download button to Header.tsx with proper styling and props
+- [ ] Implement download handler in ViewPanel.tsx using React Flow viewport methods
+- [ ] Wire up download callback through App.tsx to connect Header and ViewPanel
+- [ ] Update README tech stack to reflect Monaco Editor usage
+- [ ] Test both features work correctly in light and dark modes

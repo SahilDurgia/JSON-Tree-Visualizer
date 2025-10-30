@@ -35,16 +35,24 @@ function App() {
     setSearchQuery('');
   };
 
+  const handleDownload = () => {
+    // Call the download handler exposed by ViewPanel
+    if ((window as any).__jsonTreeDownload) {
+      (window as any).__jsonTreeDownload();
+    }
+  };
+
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <div className="flex flex-col h-screen overflow-hidden bg-background">
-        <Header onSearch={handleSearch} hasData={jsonData !== null} />
+        <Header onSearch={handleSearch} onDownload={handleDownload} hasData={jsonData !== null} />
         <div className="flex flex-row flex-1 overflow-hidden min-h-0 p-6 gap-6">
           <InputPanel onVisualize={handleVisualize} onClear={handleClear} />
           <ReactFlowProvider>
             <ViewPanel 
               jsonData={jsonData} 
               searchQuery={searchQuery}
+              onDownload={handleDownload}
             />
           </ReactFlowProvider>
         </div>

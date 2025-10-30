@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import Editor from '@monaco-editor/react';
 import { useTheme } from '../context/ThemeContext';
 
 interface InputPanelProps {
@@ -46,11 +44,10 @@ const SAMPLE_JSON = `{
 const InputPanel: React.FC<InputPanelProps> = ({ onVisualize, onClear }) => {
   const [jsonInput, setJsonInput] = useState<string>(SAMPLE_JSON);
   const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
   const { theme } = useTheme();
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setJsonInput(event.target.value);
+  const handleInputChange = (value: string | undefined) => {
+    setJsonInput(value || '');
     setError(null); // Clear error on input change
   };
 
@@ -77,43 +74,31 @@ const InputPanel: React.FC<InputPanelProps> = ({ onVisualize, onClear }) => {
   return (
     <div className="w-[30%] flex-shrink-0 p-4 bg-card rounded-xl border border-border flex flex-col min-h-0 overflow-hidden shadow-lg">
       <div className="flex-1 border border-border rounded-xl overflow-hidden flex flex-col min-h-[200px] md:min-h-0">
-        {isEditing ? (
-          <textarea
-            className="w-full h-full p-3 sm:p-4 text-foreground focus:outline-none resize-none font-mono text-sm"
-            style={{ 
-              backgroundColor: 'hsl(var(--input))',
-              color: 'hsl(var(--foreground))'
-            }}
-            value={jsonInput}
-            onChange={handleInputChange}
-            onBlur={() => setIsEditing(false)}
-            autoFocus
-          />
-        ) : (
-          <div 
-            className="w-full h-full overflow-auto cursor-text bg-input"
-            onClick={() => setIsEditing(true)}
-          >
-            <SyntaxHighlighter
-              language="json"
-              style={effectiveTheme === 'dark' ? vscDarkPlus : vs}
-              customStyle={{
-                margin: 0,
-                padding: '0.75rem 1rem',
-                background: 'transparent',
-                fontSize: '0.875rem',
-                minHeight: '100%',
-              }}
-              codeTagProps={{
-                style: {
-                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-                }
-              }}
-            >
-              {jsonInput || '// Click to edit...'}
-            </SyntaxHighlighter>
-          </div>
-        )}
+        <Editor
+          height="100%"
+          defaultLanguage="json"
+          theme={effectiveTheme === 'dark' ? 'vs-dark' : 'vs'}
+          value={jsonInput}
+          onChange={handleInputChange}
+          options={{
+            minimap: { enabled: false },
+            fontSize: 14,
+            lineNumbers: 'on',
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+            formatOnPaste: true,
+            formatOnType: true,
+            wordWrap: 'on',
+            tabSize: 2,
+            insertSpaces: true,
+            folding: true,
+            renderLineHighlight: 'all',
+            scrollbar: {
+              vertical: 'auto',
+              horizontal: 'auto',
+            },
+          }}
+        />
       </div>
       {error && (
         <div className="mt-2 p-2 bg-destructive/10 border border-destructive/20 rounded-lg">

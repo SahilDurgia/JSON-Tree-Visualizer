@@ -7,7 +7,12 @@ import ReactFlow, {
   applyEdgeChanges,
   useReactFlow,
   BackgroundVariant,
+  getNodesBounds,
+  getViewportForBounds,
 } from 'reactflow';
+import { toPng } from 'html-to-image';
+import { toast } from 'react-toastify';
+import { useTheme } from '../context/ThemeContext';
 
 import 'reactflow/dist/style.css';
 
@@ -23,6 +28,7 @@ import type { FlowNode, FlowEdge } from '../types';
 interface ViewPanelProps {
   jsonData: any | null;
   searchQuery: string;
+  onDownload: () => void;
 }
 
 const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
@@ -32,12 +38,13 @@ const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
   const [searchStatus, setSearchStatus] = useState<string | null>(null);
   const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
   const flowRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (jsonData) {
       const { nodes: initialNodes, edges: initialEdges } = generateFlowElements(jsonData);
       const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(initialNodes, initialEdges);
-      setNodes(layoutedNodes as FlowNode[]);
+      setNodes(layoutedNodes as any);
       setEdges(layoutedEdges);
       setSearchStatus(null);
       setHighlightedNodeId(null);
@@ -60,9 +67,9 @@ const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
 
     try {
       console.log('Searching for:', searchQuery);
-      console.log('Available paths:', nodes.map(n => n.data.path));
+      console.log('Available paths:', nodes.map(n => (n.data as any).path));
       
-      const foundNode = findNodeByPath(nodes, searchQuery);
+      const foundNode = findNodeByPath(nodes as any, searchQuery);
       
       if (foundNode) {
         console.log('Found node:', foundNode);
@@ -99,6 +106,72 @@ const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
       primitiveNode: (props: any) => <PrimitiveNode {...props} isHighlighted={props.id === highlightedNodeId} />,
     };
   }, [highlightedNodeId]);
+
+  // Download handler
+  const handleDownloadImage = useCallback(() => {
+    if (!flowRef.current || nodes.length === 0) {
+      toast.error('No tree to download');
+      return;
+    }
+
+    const effectiveTheme = theme === 'system' 
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : theme;
+
+    const nodesBounds = getNodesBounds(nodes);
+    const imageWidth = 1920;
+    const imageHeight = 1080;
+    const padding = 100;
+
+    // Calculate viewport for proper node positioning (future use)
+    getViewportForBounds(
+      nodesBounds,
+      imageWidth,
+      imageHeight,
+      0.5,
+      2,
+      padding
+    );
+
+    toast.info('Generating image...');
+
+    toPng(flowRef.current, {
+      backgroundColor: effectiveTheme === 'dark' ? '#1a1a1a' : '#ffffff',
+      width: imageWidth,
+      height: imageHeight,
+      pixelRatio: 2,
+      style: {
+        width: `${imageWidth}px`,
+        height: `${imageHeight}px`,
+      },
+      filter: (node) => {
+        // Exclude controls and background from capture
+        if (
+          node.classList?.contains('react-flow__controls') ||
+          node.classList?.contains('react-flow__background')
+        ) {
+          return false;
+        }
+        return true;
+      },
+    })
+      .then((dataUrl) => {
+        const link = document.createElement('a');
+        link.download = `json-tree-${Date.now()}.png`;
+        link.href = dataUrl;
+        link.click();
+        toast.success('Tree downloaded successfully!');
+      })
+      .catch((error) => {
+        console.error('Download error:', error);
+        toast.error('Failed to download tree');
+      });
+  }, [nodes, theme]);
+
+  // Expose download handler to parent
+  useEffect(() => {
+    (window as any).__jsonTreeDownload = handleDownloadImage;
+  }, [handleDownloadImage]);
 
 
   // Render empty state if no data

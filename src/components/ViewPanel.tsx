@@ -4,15 +4,10 @@ import ReactFlow, {
   Background,
   useNodesState,
   useEdgesState,
-  applyNodeChanges,
   applyEdgeChanges,
   useReactFlow,
-  getNodesBounds,
-  getViewportForBounds,
-  getRectOfNodes,
+  BackgroundVariant,
 } from 'reactflow';
-import { toPng, toSvg } from 'html-to-image';
-import { toast } from 'react-toastify';
 
 import 'reactflow/dist/style.css';
 
@@ -30,16 +25,10 @@ interface ViewPanelProps {
   searchQuery: string;
 }
 
-const nodeTypes = {
-  objectNode: ObjectNode,
-  arrayNode: ArrayNode,
-  primitiveNode: PrimitiveNode,
-};
-
 const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>([]);
-  const { fitView, setCenter, getNodes } = useReactFlow();
+  const { fitView, setCenter } = useReactFlow();
   const [searchStatus, setSearchStatus] = useState<string | null>(null);
   const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
   const flowRef = useRef<HTMLDivElement>(null);
@@ -48,7 +37,7 @@ const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
     if (jsonData) {
       const { nodes: initialNodes, edges: initialEdges } = generateFlowElements(jsonData);
       const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(initialNodes, initialEdges);
-      setNodes(layoutedNodes);
+      setNodes(layoutedNodes as FlowNode[]);
       setEdges(layoutedEdges);
       setSearchStatus(null);
       setHighlightedNodeId(null);
@@ -152,7 +141,7 @@ const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
             fitView
           >
             <Controls />
-            <Background variant="dots" gap={12} size={1} />
+            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
           </ReactFlow>
         ) : (
           <div className="flex items-center justify-center h-full">

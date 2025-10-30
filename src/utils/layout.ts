@@ -61,14 +61,14 @@ export const getLayoutedElements = (nodes: FlowNode[], edges: FlowEdge[]): { nod
     }
   });
 
-  nodesByLevel.forEach((nodesAtLevel, level) => {
+  nodesByLevel.forEach((nodesAtLevel, nodeLevel) => {
     const levelWidth = nodesAtLevel.length * NODE_WIDTH + (nodesAtLevel.length - 1) * HORIZONTAL_SPACING;
     let xOffset = (maxLevelWidth - levelWidth) / 2; // Center nodes at each level
 
     nodesAtLevel.forEach((node, index) => {
       node.position = {
         x: xOffset + index * (NODE_WIDTH + HORIZONTAL_SPACING),
-        y: level * (NODE_HEIGHT + VERTICAL_SPACING),
+        y: nodeLevel * (NODE_HEIGHT + VERTICAL_SPACING),
       };
     });
   });

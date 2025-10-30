@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import ReactFlow, {
   Controls,
   Background,
@@ -7,7 +7,12 @@ import ReactFlow, {
   applyNodeChanges,
   applyEdgeChanges,
   useReactFlow,
+  getNodesBounds,
+  getViewportForBounds,
+  getRectOfNodes,
 } from 'reactflow';
+import { toPng, toSvg } from 'html-to-image';
+import { toast } from 'react-toastify';
 
 import 'reactflow/dist/style.css';
 
@@ -34,9 +39,10 @@ const nodeTypes = {
 const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>([]);
-  const { fitView, setCenter } = useReactFlow();
+  const { fitView, setCenter, getNodes } = useReactFlow();
   const [searchStatus, setSearchStatus] = useState<string | null>(null);
   const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
+  const flowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (jsonData) {
@@ -56,19 +62,40 @@ const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
   }, [jsonData, setNodes, setEdges, fitView]);
 
   useEffect(() => {
-    if (searchQuery && nodes.length > 0) {
+    // Only process search if we have valid data
+    if (!searchQuery || nodes.length === 0) {
+      setHighlightedNodeId(null);
+      setSearchStatus(null);
+      return;
+    }
+
+    try {
+      console.log('Searching for:', searchQuery);
+      console.log('Available paths:', nodes.map(n => n.data.path));
+      
       const foundNode = findNodeByPath(nodes, searchQuery);
+      
       if (foundNode) {
+        console.log('Found node:', foundNode);
         setHighlightedNodeId(foundNode.id);
         setSearchStatus('Match found');
-        setCenter(foundNode.position.x + foundNode.width! / 2, foundNode.position.y + foundNode.height! / 2, { zoom: 1.5, duration: 800 });
+        // Safely center on the node
+        if (foundNode.position && foundNode.width && foundNode.height) {
+          setCenter(
+            foundNode.position.x + foundNode.width / 2, 
+            foundNode.position.y + foundNode.height / 2, 
+            { zoom: 1.5, duration: 800 }
+          );
+        }
       } else {
+        console.log('No match found for:', searchQuery);
         setHighlightedNodeId(null);
         setSearchStatus('No match found');
       }
-    } else {
+    } catch (error) {
+      console.error('Search error:', error);
       setHighlightedNodeId(null);
-      setSearchStatus(null);
+      setSearchStatus('Search error');
     }
   }, [searchQuery, nodes, setCenter]);
 
@@ -84,27 +111,56 @@ const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
     };
   }, [highlightedNodeId]);
 
+
+  // Render empty state if no data
+  if (!jsonData) {
+    return (
+      <div className="flex-1 bg-card flex flex-col items-center justify-center min-h-0 overflow-hidden relative rounded-xl border border-border shadow-lg">
+        <div className="text-center p-8">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto mb-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 className="text-lg font-semibold text-foreground mb-2">No JSON Visualized</h3>
+          <p className="text-sm text-muted-foreground">Paste your JSON in the left panel and click "Visualize"</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex-1 p-4 bg-background flex flex-col">
-      <h2 className="text-lg font-semibold mb-4 text-foreground">JSON Tree Visualization</h2>
+    <div className="flex-1 bg-card flex flex-col min-h-0 overflow-hidden relative rounded-xl border border-border shadow-lg">
       {searchStatus && (
-        <p className={`mb-2 text-sm ${searchStatus === 'Match found' ? 'text-success' : 'text-destructive'}`}>
+        <div className="absolute top-4 left-4 z-10 px-4 py-2 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm"
+             style={{
+               backgroundColor: searchStatus === 'Match found' 
+                 ? 'hsl(var(--success) / 0.9)' 
+                 : 'hsl(var(--destructive) / 0.9)',
+               color: 'hsl(var(--primary-foreground))'
+             }}>
           {searchStatus}
-        </p>
+        </div>
       )}
-      <div className="w-full flex-1 border-t border-border">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={customNodeTypes}
-          fitView
-        >
-          <Controls />
-          <Background variant="dots" gap={12} size={1} />
-        </ReactFlow>
+      <div ref={flowRef} className="w-full h-full">
+        {nodes.length > 0 ? (
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={customNodeTypes}
+            fitView
+          >
+            <Controls />
+            <Background variant="dots" gap={12} size={1} />
+          </ReactFlow>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center p-8">
+              <div className="animate-pulse text-muted-foreground">Loading visualization...</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

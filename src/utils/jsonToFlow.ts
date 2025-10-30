@@ -14,12 +14,13 @@ const generateFlowElements = (
     key: string | number,
     value: any,
     currentParentId: string | null,
-    currentParentPath: string
+    currentParentPath: string,
+    isParentArray: boolean = false
   ) => {
     nodeIdCounter++;
     const nodeId = `node-${nodeIdCounter}`;
     const label = String(key);
-    const path = Array.isArray(json) ? `${currentParentPath}[${key}]` : `${currentParentPath}.${key}`;
+    const path = isParentArray ? `${currentParentPath}[${key}]` : `${currentParentPath}.${key}`;
 
     let nodeType: CustomNodeData['type'];
     if (typeof value === 'object' && value !== null) {
@@ -63,11 +64,11 @@ const generateFlowElements = (
   if (typeof json === 'object' && json !== null) {
     if (Array.isArray(json)) {
       json.forEach((item, index) => {
-        processNode(index, item, parentId, parentPath);
+        processNode(index, item, parentId, parentPath, true);
       });
     } else {
       Object.entries(json).forEach(([key, value]) => {
-        processNode(key, value, parentId, parentPath);
+        processNode(key, value, parentId, parentPath, false);
       });
     }
   } else {

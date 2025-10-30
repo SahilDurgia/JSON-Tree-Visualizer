@@ -1,21 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from './components/Header';
 import InputPanel from './components/InputPanel';
 import ViewPanel from './components/ViewPanel';
-import { ReactFlowProvider } from 'reactflow'; // Import ReactFlowProvider
+import { ReactFlowProvider } from 'reactflow';
+import { ThemeProvider } from './context/ThemeContext'; // Import ThemeProvider
 
 function App() {
   const [jsonData, setJsonData] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false); // State for dark mode
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
+  // isDarkMode state and useEffect for document.documentElement.classList are now managed by ThemeProvider
 
   const handleVisualize = (data: any) => {
     setJsonData(data);
@@ -26,9 +19,7 @@ function App() {
     setSearchQuery(query);
   };
 
-  const handleToggleTheme = () => {
-    setIsDarkMode((prevMode) => !prevMode);
-  };
+  // handleToggleTheme is now managed by ThemeProvider
 
   const handleClear = () => {
     setJsonData(null);
@@ -36,15 +27,17 @@ function App() {
   };
 
   return (
-    <div className={`flex flex-col h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
-      <Header onSearch={handleSearch} onToggleTheme={handleToggleTheme} isDarkMode={isDarkMode} />
-      <div className="flex flex-1">
-        <InputPanel onVisualize={handleVisualize} onClear={handleClear} />
-        <ReactFlowProvider> {/* Wrap ViewPanel with ReactFlowProvider */}
-          <ViewPanel jsonData={jsonData} searchQuery={searchQuery} />
-        </ReactFlowProvider>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <div className="flex flex-col h-screen">
+        <Header onSearch={handleSearch} />
+        <div className="flex flex-1 overflow-hidden">
+          <InputPanel onVisualize={handleVisualize} onClear={handleClear} />
+          <ReactFlowProvider>
+            <ViewPanel jsonData={jsonData} searchQuery={searchQuery} />
+          </ReactFlowProvider>
+        </div>
       </div>
-    </div>
+    </ThemeProvider>
   );
 }
 

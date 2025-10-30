@@ -1,4 +1,4 @@
-import { FlowNode, FlowEdge } from '../types';
+import type { FlowNode, FlowEdge } from '../types';
 
 const NODE_WIDTH = 250;
 const NODE_HEIGHT = 100;

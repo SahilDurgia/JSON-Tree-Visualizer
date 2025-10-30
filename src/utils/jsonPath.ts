@@ -60,10 +60,8 @@ const reconstructNormalizedPath = (pathArray: string[]): string => {
   pathArray.forEach(segment => {
     if (/^\d+$/.test(segment)) { // If it's a numeric index
       path += `[${segment}]`;
-    } else if (segment.includes('.') || segment.includes(' ') || segment.includes('-')) { // If it contains special characters or spaces
-      path += `['${segment}']`; // Use bracket notation with quotes
     } else {
-      path += `.${segment}`;
+      path += `.${segment}`; // Always use dot notation for non-array segments
     }
   });
   return path;

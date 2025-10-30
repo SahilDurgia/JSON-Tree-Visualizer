@@ -1,5 +1,4 @@
-import { FlowNode, FlowEdge, CustomNodeData } from '../types';
-import { Node, Edge } from 'reactflow';
+import type { FlowNode, FlowEdge, CustomNodeData } from '../types';
 
 let nodeIdCounter = 0;
 

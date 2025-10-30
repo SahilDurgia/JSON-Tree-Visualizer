@@ -6,9 +6,7 @@ import ReactFlow, {
   useEdgesState,
   applyNodeChanges,
   applyEdgeChanges,
-  NodeChange,
-  EdgeChange,
-  useReactFlow, // Import useReactFlow
+  useReactFlow,
 } from 'reactflow';
 
 import 'reactflow/dist/style.css';
@@ -19,8 +17,13 @@ import PrimitiveNode from './nodes/PrimitiveNode';
 
 import generateFlowElements from '../utils/jsonToFlow';
 import { getLayoutedElements } from '../utils/layout';
-import { findNodeByPath } from '../utils/jsonPath'; // Import findNodeByPath
-import { FlowNode, FlowEdge } from '../types';
+import { findNodeByPath } from '../utils/jsonPath';
+import type { FlowNode, FlowEdge } from '../types';
+
+interface ViewPanelProps {
+  jsonData: any | null;
+  searchQuery: string;
+}
 
 const nodeTypes = {
   objectNode: ObjectNode,
@@ -28,16 +31,12 @@ const nodeTypes = {
   primitiveNode: PrimitiveNode,
 };
 
-interface ViewPanelProps {
-  jsonData: any | null;
-  searchQuery: string; // Add searchQuery to props
-}
-
 const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>([]);
-  const { fitView, setCenter } = useReactFlow(); // Use useReactFlow hook
-  const [searchStatus, setSearchStatus] = useState<string | null>(null); // State for search status
+  const { fitView, setCenter } = useReactFlow();
+  const [searchStatus, setSearchStatus] = useState<string | null>(null);
+  const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
 
   useEffect(() => {
     if (jsonData) {
@@ -45,12 +44,14 @@ const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
       const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(initialNodes, initialEdges);
       setNodes(layoutedNodes);
       setEdges(layoutedEdges);
-      setSearchStatus(null); // Clear search status on new JSON
-      fitView(); // Fit view to new graph
+      setSearchStatus(null);
+      setHighlightedNodeId(null);
+      fitView();
     } else {
       setNodes([]);
       setEdges([]);
       setSearchStatus(null);
+      setHighlightedNodeId(null);
     }
   }, [jsonData, setNodes, setEdges, fitView]);
 
@@ -58,71 +59,51 @@ const ViewPanel: React.FC<ViewPanelProps> = ({ jsonData, searchQuery }) => {
     if (searchQuery && nodes.length > 0) {
       const foundNode = findNodeByPath(nodes, searchQuery);
       if (foundNode) {
-        setNodes((nds) =>
-          nds.map((node) => ({
-            ...node,
-            data: {
-              ...node.data,
-              // Add a property to data to indicate if it's highlighted
-              isHighlighted: node.id === foundNode.id,
-            },
-          }))
-        );
+        setHighlightedNodeId(foundNode.id);
         setSearchStatus('Match found');
-        // Auto-pan to the found node
         setCenter(foundNode.position.x + foundNode.width! / 2, foundNode.position.y + foundNode.height! / 2, { zoom: 1.5, duration: 800 });
       } else {
-        setNodes((nds) =>
-          nds.map((node) => ({
-            ...node,
-            data: {
-              ...node.data,
-              isHighlighted: false,
-            },
-          }))
-        );
+        setHighlightedNodeId(null);
         setSearchStatus('No match found');
       }
     } else {
-      // Clear highlighting if search query is empty
-      setNodes((nds) =>
-        nds.map((node) => ({
-          ...node,
-          data: {
-            ...node.data,
-            isHighlighted: false,
-          },
-        }))
-      );
+      setHighlightedNodeId(null);
       setSearchStatus(null);
     }
-  }, [searchQuery, nodes, setNodes, setCenter]);
-
+  }, [searchQuery, nodes, setCenter]);
 
   const onConnect = useCallback((connection: any) => {
     setEdges((eds) => applyEdgeChanges([connection], eds));
   }, [setEdges]);
 
+  const customNodeTypes = React.useMemo(() => {
+    return {
+      objectNode: (props: any) => <ObjectNode {...props} isHighlighted={props.id === highlightedNodeId} />,
+      arrayNode: (props: any) => <ArrayNode {...props} isHighlighted={props.id === highlightedNodeId} />,
+      primitiveNode: (props: any) => <PrimitiveNode {...props} isHighlighted={props.id === highlightedNodeId} />,
+    };
+  }, [highlightedNodeId]);
+
   return (
-    <div className="flex-1 p-4 bg-gray-50">
-      <h2 className="text-lg font-semibold mb-4">JSON Tree Visualization</h2>
+    <div className="flex-1 p-4 bg-background flex flex-col">
+      <h2 className="text-lg font-semibold mb-4 text-foreground">JSON Tree Visualization</h2>
       {searchStatus && (
-        <p className={`mb-2 text-sm ${searchStatus === 'Match found' ? 'text-green-600' : 'text-red-600'}`}>
+        <p className={`mb-2 text-sm ${searchStatus === 'Match found' ? 'text-success' : 'text-destructive'}`}>
           {searchStatus}
         </p>
       )}
-      <div className="w-full h-full border border-gray-300 rounded-md">
+      <div className="w-full flex-1 border-t border-border">
         <ReactFlow
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          nodeTypes={nodeTypes}
+          nodeTypes={customNodeTypes}
           fitView
         >
           <Controls />
-          <Background />
+          <Background variant="dots" gap={12} size={1} />
         </ReactFlow>
       </div>
     </div>

@@ -2,13 +2,12 @@ import React from 'react';
 import { Handle, Position } from 'reactflow';
 
 interface ArrayNodeProps {
-  data: { label: string; value: any; path: string; isHighlighted?: boolean };
+  data: { label: string; value: any; path: string };
+  isHighlighted?: boolean;
+
 }
 
-const ArrayNode: React.FC<ArrayNodeProps> = ({ data }) => {
-  const borderColorClass = data.isHighlighted ? 'border-red-500' : 'border-green-600';
-  const bgColorClass = data.isHighlighted ? 'bg-red-400' : 'bg-green-500';
-
+const ArrayNode: React.FC<ArrayNodeProps> = ({ data, isHighlighted }) => {
   const handleNodeClick = () => {
     navigator.clipboard.writeText(data.path);
     // Optionally, provide some visual feedback to the user
@@ -17,9 +16,13 @@ const ArrayNode: React.FC<ArrayNodeProps> = ({ data }) => {
 
   const tooltipContent = `Path: ${data.path}\nValue: ${JSON.stringify(data.value, null, 2)}`;
 
+  const nodeClasses = isHighlighted
+    ? 'bg-destructive border-destructive text-destructive-foreground'
+    : 'bg-accent border-accent text-accent-foreground';
+
   return (
     <div
-      className={`px-4 py-2 shadow-md rounded-full text-white border-2 ${bgColorClass} ${borderColorClass} cursor-pointer`}
+      className={`px-4 py-2 shadow-md rounded-md border-2 cursor-pointer ${nodeClasses}`}
       onClick={handleNodeClick}
       title={tooltipContent} // Add title attribute for tooltip
     >

@@ -31,25 +31,24 @@ const InputPanel: React.FC<InputPanelProps> = ({ onVisualize, onClear }) => {
   };
 
   return (
-    <div className="w-1/3 p-4 bg-gray-100 border-r border-gray-300">
-      <h2 className="text-lg font-semibold mb-4">JSON Input</h2>
-      {/* JSON input textarea will go here */}
+    <div className="w-1/3 flex-shrink-0 p-4 bg-card border-r border-border flex flex-col">
+      <h2 className="text-lg font-semibold mb-4 text-card-foreground">JSON Input</h2>
       <textarea
-        className="w-full h-64 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full flex-1 p-2 bg-input text-foreground border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring resize-none"
         placeholder="Paste your JSON here..."
         value={jsonInput}
         onChange={handleInputChange}
       ></textarea>
-      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+      {error && <p className="text-destructive text-sm mt-2">{error}</p>}
       <div className="flex justify-between mt-4">
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           onClick={handleVisualizeClick}
         >
           Visualize
         </button>
         <button
-          className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+          className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           onClick={handleClearClick}
         >
           Clear

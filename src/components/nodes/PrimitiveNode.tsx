@@ -2,13 +2,12 @@ import React from 'react';
 import { Handle, Position } from 'reactflow';
 
 interface PrimitiveNodeProps {
-  data: { label: string; value: any; path: string; isHighlighted?: boolean };
+  data: { label: string; value: any; path: string };
+  isHighlighted?: boolean;
+
 }
 
-const PrimitiveNode: React.FC<PrimitiveNodeProps> = ({ data }) => {
-  const borderColorClass = data.isHighlighted ? 'border-red-500' : 'border-orange-600';
-  const bgColorClass = data.isHighlighted ? 'bg-red-400' : 'bg-orange-500';
-
+const PrimitiveNode: React.FC<PrimitiveNodeProps> = ({ data, isHighlighted }) => {
   const handleNodeClick = () => {
     navigator.clipboard.writeText(data.path);
     // Optionally, provide some visual feedback to the user
@@ -17,9 +16,13 @@ const PrimitiveNode: React.FC<PrimitiveNodeProps> = ({ data }) => {
 
   const tooltipContent = `Path: ${data.path}\nValue: ${String(data.value)}`;
 
+  const nodeClasses = isHighlighted
+    ? 'bg-destructive border-destructive text-destructive-foreground'
+    : 'bg-secondary border-secondary text-secondary-foreground';
+
   return (
     <div
-      className={`px-4 py-2 shadow-md rounded-full text-white border-2 ${bgColorClass} ${borderColorClass} cursor-pointer`}
+      className={`px-4 py-2 shadow-md rounded-md border-2 cursor-pointer ${nodeClasses}`}
       onClick={handleNodeClick}
       title={tooltipContent} // Add title attribute for tooltip
     >
